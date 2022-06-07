@@ -10,34 +10,52 @@ def about(request):
     return HttpResponse("<h1>This is a Text Utility website made by Rishi Raj</h1>")
 def analyze(request):
     #Took the text input entered in the form
-    djtext=request.GET.get("text","default")
-    #Take the input of the check boxex.
-    removepunc=request.GET.get('removepunc',"off")
-    fullcaps=request.GET.get('fullcaps',"off")
-    print(djtext)
-    print(removepunc)
-    #return HttpResponse("Hello beta! Analyze karoge na?")
-    if removepunc=="on":
-        analyzed=""
-        for char in djtext:
-            if char not in punctuation:
-                analyzed+=char
-        if fullcaps=="on":
-            analyzed2=""
+    djtext=request.POST.get("text","default")
+
+    #Take the input of all the check boxes.
+    removepunc=request.POST.get('removepunc',"off")
+    fullcaps=request.POST.get('fullcaps',"off")
+    removeNewLine=request.POST.get('removenewline',"off")
+    removeExtraSpace=request.POST.get('removespace',"off")
+
+    #Now, if any of the checkboxes were selected we will do someting.Else, return http response:
+
+    if removepunc=="on" or fullcaps=="on" or removeNewLine=="on" or removeExtraSpace=="on":
+        message="We have "
+        analyzed=djtext
+        if removepunc=="on":
+            temp=""
             for char in analyzed:
-                analyzed2=analyzed2+char.upper()
-            params={'purpose':"Remove the punctuatios",'analyzed_text':analyzed2}
-            return render(request,'analyze.html',params)
-        params={'purpose':"Remove the punctuatios",'analyzed_text':analyzed}
-        return render(request,'analyze.html',params)
-    elif fullcaps=="on":
-        analyzed=""
-        for char in djtext:
-            analyzed=analyzed+char.upper()
+                if char not in punctuation:
+                    temp=temp+char
+            analyzed=temp
+        if fullcaps=="on":
+            temp=""
+            for char in analyzed:
+                temp+=char.upper()
+            analyzed=temp
+        if removeNewLine =="on":
+            #analyzed=  analyzed.replace('\n', ' ').replace('\r', '')
+            temp=""
+            for char in analyzed:
+                if char!='\n' and char!='\r':
+                    temp+=char
+            analyzed=temp
+
+        if removeExtraSpace=="on":
+            temp=""
+            for index,char in enumerate(analyzed):
+                if analyzed[index]==" " and analyzed[index+1]==" ":
+                    pass
+                else:
+                    temp+=char
+            analyzed=temp
         params={'purpose':"Capitalize Text",'analyzed_text':analyzed}
         return render(request,'analyze.html',params)
+
     else:
-        return HttpResponse("Remove punctuation function is not selected.")
+        return HttpResponse("None of the text modifiers options were selected.")
+    
 
     
 def displayTextFile(request):
